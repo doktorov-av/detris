@@ -1,0 +1,69 @@
+:root {
+    --button-size: 100px;
+}
+
+
+.panel-container {
+    position: fixed;
+    left: 100px;
+    top: 100px;
+    padding: 20px;
+    display: inline-flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.manipulator:hover {
+    cursor: pointer;
+}
+
+.circle-container {
+    background: #292827;
+    display: flex;
+    width: var(--button-size);
+    height: var(--button-size);
+    justify-content: center;
+    align-items: center;
+    border-radius: 50%;
+    box-shadow:
+            0 0 0 3px gold,
+            0 0 10px 1px orange;
+}
+
+.circle-container:hover {
+    justify-content: center;
+    align-items: center;
+    border-radius: 50%;
+    animation: pulse 3s infinite ease-in-out;
+}
+
+@keyframes pulse {
+    0% {
+        box-shadow:
+                0 0 0 3px gold,
+                0 0 10px 1px orange;
+    }
+    50% {
+        box-shadow:
+                0 0 0 2px gold,
+                0 0 10px 7px darkorange;
+    }
+    100% {
+        box-shadow:
+                0 0 0 3px gold,
+                0 0 10px 1px orange;
+    }
+}
+
+.add-button {
+    width: 100px;
+    height: 100px;
+    color: darkorange;
+}
+
+.reset-button {
+    width: 100px;
+    height: 100px;
+    color: darkorange;
+    scale: 70%;
+}

@@ -4,6 +4,7 @@ import {type GameProps, type GameState} from "./props.ts";
 import {ModeContext} from "../contexts/Contexts.ts";
 import {ModeSchemes} from "../tuning/ModeSchemes.ts";
 import {GameMode} from "./gameMode.ts";
+import type {ShapeType} from "../tuning/Shapes.ts";
 
 export class GameComponent extends React.Component<GameProps, GameState> {
     constructor(props: GameProps) {
@@ -17,6 +18,10 @@ export class GameComponent extends React.Component<GameProps, GameState> {
             mode: GameMode.Standard,
             ...props.initialState
         };
+    }
+
+    spawnShape(type: ShapeType) {
+
     }
 
     render() {

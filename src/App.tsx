@@ -19,12 +19,13 @@ export default function App() {
     const [state, setState] = React.useState<GameState>(initialState)
 
     return (
-        <div className='root'>
+        <div className='root flex flex-col w-dvh place-items-center'>
             <div className='flex gap-10 justify-between mt-5' key='shapes-gallery'>
                 <Shape type={"LShape"} cellComponent={<div className={'cell blue'}></div>}/>
                 <Shape type={"LShapeInv"} cellComponent={<Cell/>}/>
                 <Shape type={"Cube"} cellComponent={<div className={'cell red'}></div>}/>
                 <Shape type={"TShape"} cellComponent={<Cell/>}/>
+                <Shape type={"FlatShape"} cellComponent={<div className={'cell red'}></div>}/>
             </div>
 
             <ModeContext value={state.mode}>

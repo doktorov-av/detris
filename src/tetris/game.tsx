@@ -40,19 +40,21 @@ const GameGrid = ({numRows, numCols}: GameGridProps) => {
     const mode: GameMode = useContext(ModeContext)
 
     return (
-        <div className={`tetris-grid ${ModeSchemes.get(mode)?.gridStyling}`}
-             style={{
-                 "--cols": numCols,
-                 "--rows": numRows
-             }}>
-            {cells.map((_, index) => {
-                const row = Math.floor(index / numCols);
-                const col = index % numCols;
-                return (
-                    <Cell
-                        key={`cell-${row}-${col}`}/>
-                );
-            })}
+        <div className='flex m-auto'>
+            <div className={`tetris-grid ${ModeSchemes.get(mode)?.gridStyling}`}
+                 style={{
+                     "--cols": numCols,
+                     "--rows": numRows
+                 }}>
+                {cells.map((_, index) => {
+                    const row = Math.floor(index / numCols);
+                    const col = index % numCols;
+                    return (
+                        <Cell
+                            key={`cell-${row}-${col}`}/>
+                    );
+                })}
+            </div>
         </div>
     );
 };

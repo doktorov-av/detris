@@ -1,9 +1,10 @@
-import {GameComponent} from "./tetris/game.tsx";
+import {Cell, GameComponent} from "./tetris/game.tsx";
 import {GameEditor} from "./field-editor/editor.tsx";
 import {type GameState} from "./tetris/props.ts";
 import {ModeContext} from "./contexts/Contexts.ts";
 import React from "react";
 import {GameMode} from "./tetris/gameMode.ts";
+import {Shape} from "./shapes/Shape.tsx";
 
 export default function App() {
     const initialState = {
@@ -19,6 +20,13 @@ export default function App() {
 
     return (
         <div className='root'>
+            <div className='flex gap-10 justify-between mt-5' key='shapes-gallery'>
+                <Shape type={"LShape"} cellComponent={<div className={'cell blue'}></div>}/>
+                <Shape type={"LShapeInv"} cellComponent={<Cell/>}/>
+                <Shape type={"Cube"} cellComponent={<div className={'cell red'}></div>}/>
+                <Shape type={"TShape"} cellComponent={<Cell/>}/>
+            </div>
+
             <ModeContext value={state.mode}>
                 <GameEditor
                     stateSetter={setState}

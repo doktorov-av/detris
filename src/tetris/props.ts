@@ -1,4 +1,5 @@
 import {GameMode} from "./gameMode.ts";
+import React from "react";
 
 export interface GameState {
     score: number;

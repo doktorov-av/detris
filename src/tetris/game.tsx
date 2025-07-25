@@ -2,7 +2,7 @@ import React, {useContext} from 'react';
 import './game.css';
 import {type GameProps, type GameState} from "./props.ts";
 import {ModeContext} from "../contexts/Contexts.ts";
-import {ModeSchemes} from "../contexts/ModeSchemes.ts";
+import {ModeSchemes} from "../tuning/ModeSchemes.ts";
 import {GameMode} from "./gameMode.ts";
 
 export class GameComponent extends React.Component<GameProps, GameState> {
@@ -20,9 +20,11 @@ export class GameComponent extends React.Component<GameProps, GameState> {
     }
 
     render() {
-        return <GameGrid numRows={this.props.state.numRows}
-                         numCols={this.state.cellsInARow}>
-        </GameGrid>
+        return <div>
+            <GameGrid numRows={this.props.state.numRows}
+                      numCols={this.state.cellsInARow}>
+            </GameGrid>
+        </div>
     }
 }
 
@@ -59,5 +61,11 @@ const GameGrid = ({numRows, numCols}: GameGridProps) => {
 export const Cell: React.FC = () => {
     return <div className="cell white" onClick={(e: React.MouseEvent<HTMLInputElement, MouseEvent>) =>
         (e.target as HTMLDivElement).className = 'cell blue'}/>
+}
+
+export const ShapeCell: React.FC = () => {
+    return <div className="cell blue">
+
+    </div>
 }
 

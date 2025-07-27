@@ -9,7 +9,7 @@ export interface GameState {
     cellsInARow: number;
     mode: GameMode;
     numRows: number;
-    shapes: ShapeProps[];
+    shapesProps: ShapeProps[];
 }
 
 

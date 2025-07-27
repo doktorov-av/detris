@@ -4,20 +4,23 @@ import {ModeSchemes} from "../tuning/ModeSchemes.ts";
 import {Cell} from "../cells/Cell.tsx";
 import type {GameMode} from "./GameMode.ts";
 import './Grid.css'
+import {type ShapeProps} from "../shapes/Shape.ts";
+import {Shape} from "../shapes/Shape.tsx";
 
 interface GameGridProps {
     numRows: number;
     numCols: number;
+    children: React.ReactNode;
 }
 
-export const GameGrid: React.FC<GameGridProps> = ({numRows, numCols}: GameGridProps) => {
+export const GameGrid: React.FC<GameGridProps> = ({numRows, numCols, children}: GameGridProps) => {
     // Create a flat array of all cells for grid layout
     const cells = Array(numRows * numCols).fill(null);
     const mode: GameMode = useContext(ModeContext)
 
     return (
-        <div className='flex m-auto'>
-            <div className={`tetris-grid ${ModeSchemes.get(mode)?.gridStyling}`}
+        <div className={`flex m-auto tetris-grid-container ${ModeSchemes.get(mode)?.gridStyling}`}>
+            <div className={'relative tetris-grid'}
                  style={{
                      "--cols": numCols,
                      "--rows": numRows
@@ -29,6 +32,7 @@ export const GameGrid: React.FC<GameGridProps> = ({numRows, numCols}: GameGridPr
                         <Cell key={`cell-${row}-${col}`}/>
                     );
                 })}
+                {children}
             </div>
         </div>
     );

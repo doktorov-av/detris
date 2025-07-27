@@ -1,5 +1,6 @@
-import {GameMode} from "./gameMode.ts";
-import React from "react";
+import {type GameMode} from "./GameMode.ts";
+import {type ShapeProps} from '../shapes/Shape.ts';
+
 
 export interface GameState {
     score: number;
@@ -8,6 +9,7 @@ export interface GameState {
     cellsInARow: number;
     mode: GameMode;
     numRows: number;
+    shapes: ShapeProps[];
 }
 
 

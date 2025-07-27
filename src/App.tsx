@@ -1,10 +1,13 @@
-import {Cell, GameComponent} from "./tetris/game.tsx";
-import {GameEditor} from "./field-editor/editor.tsx";
+import {Game} from "./tetris/Game.tsx";
+import {GameEditor} from "./field-editor/Editor.tsx";
 import {type GameState} from "./tetris/props.ts";
 import {ModeContext} from "./contexts/Contexts.ts";
 import React from "react";
-import {GameMode} from "./tetris/gameMode.ts";
+import {Modes} from "./tetris/GameMode.ts";
 import {Shape} from "./shapes/Shape.tsx";
+import {Shapes, type ShapeType} from "./tuning/Shapes.ts";
+import {type CellProps} from "./cells/Cell.tsx";
+import {Cells} from "./cells/CellType.ts";
 
 export default function App() {
     const initialState = {
@@ -13,19 +16,27 @@ export default function App() {
         isRunning: false,
         cellsInARow: 20,
         numRows: 100,
-        mode: GameMode.Standard,
+        mode: Modes.Standard,
     } as GameState
 
     const [state, setState] = React.useState<GameState>(initialState)
 
+
     return (
         <div className='root flex flex-col w-dvh place-items-center'>
             <div className='flex gap-10 justify-between mt-5' key='shapes-gallery'>
-                <Shape type={"LShape"} cellComponent={<div className={'cell blue'}></div>}/>
-                <Shape type={"LShapeInv"} cellComponent={<Cell/>}/>
-                <Shape type={"Cube"} cellComponent={<div className={'cell red'}></div>}/>
-                <Shape type={"TShape"} cellComponent={<Cell/>}/>
-                <Shape type={"FlatShape"} cellComponent={<div className={'cell red'}></div>}/>
+                {
+                    Object.entries(Shapes).map(([key]) => {
+                        const shapeType = key as ShapeType
+
+                        // if we want special rendering for any shape :)
+                        if (shapeType === "LShapeInv") {
+                            return <Shape type={key as ShapeType} cellProps={{type: Cells.blue} as CellProps}/>
+                        }
+
+                        return <Shape type={shapeType} cellProps={{type: Cells.red}}/>
+                    })
+                }
             </div>
 
             <ModeContext value={state.mode}>
@@ -33,7 +44,7 @@ export default function App() {
                     stateSetter={setState}
                     initialState={initialState}
                 />
-                <GameComponent
+                <Game
                     state={state}
                     initialState={initialState}
                 />

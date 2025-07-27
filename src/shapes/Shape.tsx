@@ -1,16 +1,8 @@
 import React from "react";
-import {Shapes, type ShapeType} from "../tuning/Shapes.ts";
+import {Shapes} from "../tuning/Shapes.ts";
+import type {ShapeProps, ShapeState} from "./Shape.ts";
+import {Cell} from "../cells/Cell.tsx";
 
-interface ShapeProps {
-    type: ShapeType;
-    cellComponent: React.ReactElement;
-    initialPos?: ShapeState
-}
-
-interface ShapeState {
-    xPos: number;
-    yPos: number;
-}
 
 export class Shape extends React.Component<ShapeProps, ShapeState> {
     constructor(props: ShapeProps) {
@@ -54,12 +46,12 @@ export class Shape extends React.Component<ShapeProps, ShapeState> {
 
         return <div className='inline-block'>
             {
-                shapeData.mShape.map((row, columnIndx) => {
+                shapeData.mShape.map((row, iCol) => {
                     return <div className='flex m-auto'>
                         {
-                            row.map((opacity, rowIndx) => {
-                                return <div className={`opacity-${opacity}`} key={`shape-cell-${columnIndx}-${rowIndx}`}>
-                                    {React.cloneElement(this.props.cellComponent)}
+                            row.map((opacity, iRow) => {
+                                return <div className={`opacity-${opacity}`} key={`shape-cell-${iCol}-${iRow}`} style={{opacity: opacity}}>
+                                    <Cell {...this.props.cellProps}> </Cell>
                                 </div>
                             })
                         }

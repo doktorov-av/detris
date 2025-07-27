@@ -1,5 +1,4 @@
 import {createContext} from 'react';
+import {type GameMode, Modes} from "../tetris/GameMode.ts";
 
-import {GameMode} from "../tetris/gameMode.ts";
-
-export const ModeContext = createContext(GameMode.Standard);
+export const ModeContext = createContext<GameMode>(Modes.Standard);

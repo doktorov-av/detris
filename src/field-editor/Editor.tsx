@@ -1,10 +1,10 @@
 import React from 'react';
 import {IoIosAdd} from "react-icons/io";
 import {RxReset} from "react-icons/rx";
-import './editor.css'
+import './Editor.css'
 import { SegmentedControl } from '@mantine/core';
 import {type GameState} from "../tetris/props.ts";
-import {GameMode} from "../tetris/gameMode.ts";
+import {type GameModeName, Modes} from "../tetris/GameMode.ts";
 
 interface GameEditorProps {
     stateSetter: React.Dispatch<React.SetStateAction<GameState>>;
@@ -22,14 +22,12 @@ export class GameEditor extends React.Component<GameEditorProps> {
                 <SegmentedControl
                     radius="xl"
                     size="md"
-                    data={Object.values(GameMode).filter(
-                        (value) => typeof value === 'string'
-                    )}
+                    data={Object.keys(Modes)}
                     onChange={value => {
                         this.props.stateSetter((prev) => {
                             return {
                                 ...prev,
-                                mode: GameMode[value as keyof typeof GameMode]
+                                mode: Modes[value as GameModeName],
                             }
                         })
                     }}

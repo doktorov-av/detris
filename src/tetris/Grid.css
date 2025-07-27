@@ -1,8 +1,3 @@
-:root {
-    --block-width: 25px;
-    --block-height: 25px;
-}
-
 .tetris-grid {
     margin: 30px auto;
     display: grid;
@@ -29,33 +24,4 @@
 .tetris-grid.purple {
     background-image: linear-gradient(to right, purple, mediumpurple);
     background-color: #1a1a1a;
-}
-
-.cell {
-    display: block;
-}
-
-.cell.white {
-    width: var(--block-width);
-    height: var(--block-height);
-    border: 1px solid #ccc;
-    background-color: #f0f0f0;
-}
-
-.cell.red {
-    width: var(--block-width);
-    height: var(--block-height);
-    border: 1px solid yellow;
-    background: radial-gradient(#d22f13, red);
-    box-shadow: 0 0 10px 2px red,
-    0 0 20px 1px inset darkred;
-}
-
-.cell.blue {
-    width: var(--block-width);
-    height: var(--block-height);
-    border: 1px solid yellow;
-    background: cyan;
-    box-shadow: 0 0 10px 2px cornflowerblue,
-    0 0 20px 1px inset blueviolet;
 }

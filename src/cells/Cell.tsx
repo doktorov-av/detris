@@ -1,22 +1,19 @@
 import styled, { css } from 'styled-components';
 import {Cells, type CellType} from "./CellType.ts";
+import {CellTuning} from "../tuning/Cells.ts";
 
 export interface CellProps {
     type?: CellType;
-    height?: string;
-    width?: string;
 }
 
 const Defaults = {
     type: Cells.white,
-    height: "25px",
-    width: "25px",
 };
 
 export const Cell = styled.div<CellProps>`
     display: block;
-    width: ${({ width }) => width ?? Defaults.width};
-    height: ${({ height }) => height ?? Defaults.height};
+    width: ${CellTuning.shape.widthPx};
+    height: ${CellTuning.shape.heightPx};
 
     ${({ type = Defaults.type }) => {
         switch (type) {

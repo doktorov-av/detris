@@ -1,12 +1,6 @@
 .tetris-grid-container {
     margin: 30px auto;
-    padding: 10px;
-}
-
-.tetris-grid {
-    display: grid;
-    grid-template-rows: repeat(var(--rows), 1fr);
-    grid-template-columns: repeat(var(--cols), 1fr);
+    padding: 20px 10px 10px 10px;
 }
 
 .tetris-grid-container.red {

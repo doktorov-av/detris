@@ -17,8 +17,16 @@ export default tseslint.config([
       reactRefresh.configs.vite,
     ],
     rules: {
-      "no-unused-vars": "off"
+      "@typescript-eslint/no-unused-vars": [
+        "warn",
+        {
+          "argsIgnorePattern": "^_", // Ignores arguments starting with an underscore
+          "varsIgnorePattern": "^_"  // Ignores variables starting with an underscore
+        }
+      ],
+      "no-unused-vars": {}
     },
+
     languageOptions: {
       parserOptions: {
         project: ['./tsconfig.node.json', './tsconfig.app.json'],

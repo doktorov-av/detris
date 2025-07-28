@@ -1,6 +1,6 @@
 import {Game} from "./tetris/Game.tsx";
 import {GameEditor} from "./field-editor/Editor.tsx";
-import {type GameState} from "./tetris/props.ts";
+import {type GameState} from "./tetris/GameProps.ts";
 import {ModeContext} from "./contexts/Contexts.ts";
 import React from "react";
 import {Modes} from "./tetris/GameMode.ts";
@@ -8,19 +8,19 @@ import {Shape} from "./shapes/Shape.tsx";
 import {Shapes, type ShapeType} from "./tuning/Shapes.ts";
 import {type CellProps} from "./cells/Cell.tsx";
 import {Cells} from "./cells/CellType.ts";
+import {CellTuning} from "./tuning/Cells.ts";
+
+const initialState = {
+    score: 0,
+    level: 1,
+    isRunning: true,
+    cellsInARow: 20,
+    numRows: 30,
+    mode: Modes.Standard,
+} as GameState
 
 export default function App() {
-    const initialState = {
-        score: 0,
-        level: 1,
-        isRunning: false,
-        cellsInARow: 20,
-        numRows: 100,
-        mode: Modes.Standard,
-    } as GameState
-
     const [state, setState] = React.useState<GameState>(initialState)
-
 
     return (
         <div className='root flex flex-col w-dvh place-items-center'>
@@ -31,7 +31,7 @@ export default function App() {
 
                         // if we want special rendering for any shape :)
                         if (shapeType === "LShapeInv") {
-                            return <Shape type={key as ShapeType} cellProps={{type: Cells.blue} as CellProps}/>
+                            return <Shape type={shapeType} cellProps={{type: Cells.blue} as CellProps}/>
                         }
 
                         return <Shape type={shapeType} cellProps={{type: Cells.red}}/>
@@ -47,6 +47,18 @@ export default function App() {
                 <Game
                     state={state}
                     initialState={initialState}
+                    staticShapes={[{
+                        shapeProps : {
+                            type: "TShape",
+                            cellProps: {
+                                type: Cells.blue
+                            }
+                        },
+                        position : {
+                            x: CellTuning.shape.width * 10,
+                            y: CellTuning.shape.height * 10
+                        }
+                    }]}
                 />
             </ModeContext>
         </div>

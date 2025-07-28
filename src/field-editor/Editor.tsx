@@ -3,8 +3,9 @@ import {IoIosAdd} from "react-icons/io";
 import {RxReset} from "react-icons/rx";
 import './Editor.css'
 import { SegmentedControl } from '@mantine/core';
-import {type GameState} from "../tetris/props.ts";
+import {type GameState} from "../tetris/GameProps.ts";
 import {type GameModeName, Modes} from "../tetris/GameMode.ts";
+import { IoPlayOutline as PlayButton } from "react-icons/io5";
 
 interface GameEditorProps {
     stateSetter: React.Dispatch<React.SetStateAction<GameState>>;
@@ -56,6 +57,21 @@ export class GameEditor extends React.Component<GameEditorProps> {
                                         numRows: this.props.initialState.numRows,
                                     }
                                 });
+                            }}
+                        />
+                    </div>
+                    <div className="circle-container">
+                        <PlayButton
+                            className='hover:cursor-pointer'
+                            color={'orange'}
+                            size={80}
+                            onClick={() => {
+                                this.props.stateSetter(prev => {
+                                    return {
+                                        ...prev,
+                                        isRunning: !prev.isRunning,
+                                    }
+                                })
                             }}
                         />
                     </div>

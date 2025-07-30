@@ -15,7 +15,7 @@ export class Shape extends React.Component<ShapeProps> {
         return <div className='inline-block'>
             {
                 shapeData.mShape.map((row, iCol) => {
-                    return <div className='flex m-auto'>
+                    return <div className='flex m-auto' key={`shape-${iCol}`}>
                         {
                             row.map((opacity, iRow) => {
                                 return <div className={`opacity-${opacity}`} key={`shape-cell-${iCol}-${iRow}`} style={{opacity: opacity}}>

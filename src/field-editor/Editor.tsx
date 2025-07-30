@@ -3,13 +3,13 @@ import {IoIosAdd} from "react-icons/io";
 import {RxReset} from "react-icons/rx";
 import './Editor.css'
 import { SegmentedControl } from '@mantine/core';
-import {type GameState} from "../tetris/GameProps.ts";
+import {type GameProps} from "../tetris/GameProps.ts";
 import {type GameModeName, Modes} from "../tetris/GameMode.ts";
 import { IoPlayOutline as PlayButton } from "react-icons/io5";
 
 interface GameEditorProps {
-    stateSetter: React.Dispatch<React.SetStateAction<GameState>>;
-    initialState: GameState
+    propsSetter: React.Dispatch<React.SetStateAction<GameProps>>;
+    iniProps: GameProps
 }
 
 export class GameEditor extends React.Component<GameEditorProps> {
@@ -25,7 +25,7 @@ export class GameEditor extends React.Component<GameEditorProps> {
                     size="md"
                     data={Object.keys(Modes)}
                     onChange={value => {
-                        this.props.stateSetter((prev) => {
+                        this.props.propsSetter((prev) => {
                             return {
                                 ...prev,
                                 mode: Modes[value as GameModeName],
@@ -38,10 +38,10 @@ export class GameEditor extends React.Component<GameEditorProps> {
                         <IoIosAdd
                             className="add-button manipulator"
                             onClick={() => {
-                                this.props.stateSetter(prev => {
+                                this.props.propsSetter(prev => {
                                     return {
                                         ...prev,
-                                        numRows: prev.numRows + 1,
+                                        nrows: prev.nrows ?? (prev.nrows as unknown as number) + 1,
                                     }
                                 })
                             }}
@@ -51,10 +51,10 @@ export class GameEditor extends React.Component<GameEditorProps> {
                         <RxReset
                             className="reset-button manipulator"
                             onClick={() => {
-                                this.props.stateSetter(prev => {
+                                this.props.propsSetter(prev => {
                                     return {
                                         ...prev,
-                                        numRows: this.props.initialState.numRows,
+                                        numRows: this.props.iniProps.nrows,
                                     }
                                 });
                             }}
@@ -66,7 +66,7 @@ export class GameEditor extends React.Component<GameEditorProps> {
                             color={'orange'}
                             size={80}
                             onClick={() => {
-                                this.props.stateSetter(prev => {
+                                this.props.propsSetter(prev => {
                                     return {
                                         ...prev,
                                         isRunning: !prev.isRunning,

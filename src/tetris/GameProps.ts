@@ -1,5 +1,5 @@
 import {type GameMode} from "./GameMode.ts";
-import {type ShapeProps} from '../shapes/Shape.ts';
+import type {PositionedShapeProps} from "../shapes/PositionedShape.tsx";
 
 
 export interface Position {
@@ -9,24 +9,20 @@ export interface Position {
 
 export type Offset = Position;
 
-export interface StaticShape {
-    shapeProps: ShapeProps;
-    position: Position;
-}
-
 export interface GameState {
     score: number;
     level: number;
     isRunning: boolean;
-    cellsInARow: number;
+    ncols: number;
     mode: GameMode;
-    numRows: number;
-    activeShape: StaticShape;
-    staticShapes: StaticShape[];
+    activeShape?: PositionedShapeProps;
+    staticShapes: PositionedShapeProps[];
 }
 
 export interface GameProps {
-    initialState? : Partial<GameState>;
-    staticShapes?: StaticShape[];
-    state: GameState;
+    staticShapes?: PositionedShapeProps[];
+    moveDelayMs?: number;
+    isRunning?: boolean;
+    mode?: GameMode;
+    nrows?: number;
 }

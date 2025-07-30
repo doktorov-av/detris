@@ -7,29 +7,34 @@ import './Grid.css'
 import styled from "styled-components";
 
 interface GameGridProps {
-    numRows: number;
-    numCols: number;
+    nrows: number;
+    ncols: number;
     children: React.ReactNode;
 }
 
-const Grid = styled.div<{numRows: number, numCols: number}>`
+interface GridProps {
+    nrows: number;
+    ncols: number;
+}
+
+const Grid = styled.div<GridProps>`
     position: relative;
     display: grid;
-    grid-template-rows: repeat(${props => props.numRows}, 1fr);
-    grid-template-columns: repeat(${props => props.numCols}, 1fr);
+    grid-template-rows: repeat(${props => props.nrows}, 1fr);
+    grid-template-columns: repeat(${props => props.ncols}, 1fr);
 `
 
-export const GameGrid: React.FC<GameGridProps> = ({numRows, numCols, children}: GameGridProps) => {
+export const GameGrid: React.FC<GameGridProps> = ({nrows, ncols, children}: GameGridProps) => {
     // Create a flat array of all cells for grid layout
-    const cells = Array(numRows * numCols).fill(null);
+    const cells = Array(nrows * ncols).fill(null);
     const mode: GameMode = useContext(ModeContext)
 
     return (
         <div className={`flex m-auto tetris-grid-container overflow-clip ${ModeSchemes.get(mode)?.gridStyling}`}>
-            <Grid numCols={numCols} numRows={numRows}>
+            <Grid ncols={ncols} nrows={ncols}>
                 {cells.map((_, index) => {
-                    const row = Math.floor(index / numCols);
-                    const col = index % numCols;
+                    const row = Math.floor(index / ncols);
+                    const col = index % ncols;
                     return (
                         <Cell key={`grid-cell-${row}-${col}`}/>
                     );

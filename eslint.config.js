@@ -24,7 +24,7 @@ export default tseslint.config([
           "varsIgnorePattern": "^_"  // Ignores variables starting with an underscore
         }
       ],
-      "no-unused-vars": {}
+      "no-unused-vars": 'warn',
     },
 
     languageOptions: {

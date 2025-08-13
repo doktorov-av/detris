@@ -1,8 +1,8 @@
 import {Cells, type CellType} from "../cells/CellType.ts";
 import {Shapes, type ShapeType} from "../tuning/Shapes.ts";
-import type {ShapeProps} from "../shapes/Shape.ts";
+import {GridShape} from "../shapes/GridShape.ts";
 
-export const RandomizeShape = (): ShapeProps => {
+export const RandomizeShape = (): GridShape => {
     const cells = Object.values(Cells).filter((value) => value != Cells.white)
     let randomIndex = Math.floor(Math.random() * cells.length)
     const randCell = cells[randomIndex]
@@ -11,10 +11,7 @@ export const RandomizeShape = (): ShapeProps => {
     randomIndex = Math.floor(Math.random() * types.length)
     const type = types[randomIndex]
 
-    return {
-        type: type as ShapeType,
-        cellProps: {
-            type: randCell as CellType,
-        }
-    }
+    return new GridShape(type as ShapeType, {
+        type: randCell as CellType,
+    })
 }

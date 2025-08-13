@@ -4,10 +4,11 @@ import {type GameProps} from "./tetris/GameProps.ts";
 import {ModeContext} from "./contexts/Contexts.ts";
 import React from "react";
 import {type GameMode, Modes} from "./tetris/GameMode.ts";
-import {Shape} from "./shapes/Shape.tsx";
+import {ShapeComponent} from "./shapes/ShapeComponent.tsx";
 import {Shapes, type ShapeType} from "./tuning/Shapes.ts";
 import {type CellProps} from "./cells/Cell.tsx";
 import {Cells} from "./cells/CellType.ts";
+import {GridShape} from "./shapes/GridShape.ts";
 
 const iniGameProps: GameProps = {
     staticShapes: [],
@@ -29,11 +30,14 @@ export default function App() {
 
                         // if we want special rendering for any shape :)
                         if (shapeType === "LShapeInv") {
-                            return <Shape type={shapeType} key={`showcase-shape-${index}`}
-                                          cellProps={{type: Cells.blue} as CellProps}/>
+                            return <ShapeComponent shape={
+                                new GridShape(shapeType, {type: Cells.blue} as CellProps)
+                            } key={`showcase-shape-${index}`}/>
                         }
 
-                        return <Shape type={shapeType} key={`showcase-shape-${index}`} cellProps={{type: Cells.red}}/>
+                        return <ShapeComponent shape={
+                            new GridShape(shapeType, {type: Cells.red} as CellProps)
+                        } key={`showcase-shape-${index}`}/>
                     })
                 }
             </div>

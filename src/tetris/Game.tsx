@@ -196,7 +196,7 @@ export class Game extends React.Component<GameProps, GameState> {
                 ))
             }
             {
-                this.state.activeShape && <GridShapeComponent shape={this.state.activeShape as GridShape}/>
+                this.state.activeShape && <GridShapeComponent shape={this.state.activeShape as GridShape} key={'active-shape'}/>
             }
 
         </GameGrid>

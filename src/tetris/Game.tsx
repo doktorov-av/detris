@@ -8,7 +8,6 @@ import {CellTuning} from "../tuning/Cells.ts";
 import {RandomizeShape} from "./RandomizeShape.ts";
 import {GridShape} from "../shapes/GridShape.ts";
 import {GridShapeComponent} from "../shapes/GridShapeComponent.tsx";
-import {Grid} from "@mantine/core";
 
 const downMove: Offset = {x: 0, y: CellTuning.shape.height}
 const rightMove: Offset = {x: CellTuning.shape.width, y: 0}
@@ -40,7 +39,7 @@ export class Game extends React.Component<GameProps, GameState> {
     }
 
     private isValidMove(offset: Offset): boolean {
-        let activeShape = GridShape.copy(this.state.activeShape as GridShape)
+        const activeShape = GridShape.copy(this.state.activeShape!)
         activeShape.move(offset)
         return this.isValidShape(activeShape)
     }
@@ -55,7 +54,7 @@ export class Game extends React.Component<GameProps, GameState> {
         this.setState((prev) => {
             return {
                 ...prev,
-                activeShape: GridShape.copy(prev.activeShape as GridShape).move(offset),
+                activeShape: GridShape.copy(prev.activeShape!).move(offset),
             }
         })
     }
@@ -70,11 +69,9 @@ export class Game extends React.Component<GameProps, GameState> {
     // moves active shape to static shapes
     freezeActive() {
         this.setState(prevState => {
-            const activeShape = prevState.activeShape as GridShape
-
             return {
                 ...prevState,
-                staticShapes: [...prevState.staticShapes, activeShape],
+                staticShapes: [...prevState.staticShapes, prevState.activeShape!],
                 activeShape: undefined
             }
         })
@@ -87,7 +84,7 @@ export class Game extends React.Component<GameProps, GameState> {
     }
 
     isValidNext(): boolean {
-        const activeShape = GridShape.copy(this.state.activeShape as GridShape)
+        const activeShape = GridShape.copy(this.state.activeShape!)
         activeShape.next()
         return this.isValidShape(activeShape)
     }
@@ -96,7 +93,7 @@ export class Game extends React.Component<GameProps, GameState> {
         this.setState((prev) => {
             return {
                 ...prev,
-                activeShape: GridShape.copy(prev.activeShape as GridShape).next(),
+                activeShape: GridShape.copy(prev.activeShape!).next(),
             }
         })
     }
@@ -168,12 +165,12 @@ export class Game extends React.Component<GameProps, GameState> {
             }
         }, this.props.moveDelayMs ?? gameDefaults.intervalMs)
 
-        document.addEventListener('keydown', this.handleKeyDown);
+        document.addEventListener('keydown', (ev) => this.handleKeyDown(ev));
     }
 
     componentWillUnmount() {
         clearInterval(this.intervalId)
-        document.removeEventListener('keydown', this.handleKeyDown);
+        document.removeEventListener('keydown', (ev) => this.handleKeyDown(ev));
     }
 
     getStaticShapes(): GridShape[] {
@@ -196,7 +193,7 @@ export class Game extends React.Component<GameProps, GameState> {
                 ))
             }
             {
-                this.state.activeShape && <GridShapeComponent shape={this.state.activeShape as GridShape} key={'active-shape'}/>
+                this.state.activeShape && <GridShapeComponent shape={this.state.activeShape} key={'active-shape'}/>
             }
 
         </GameGrid>

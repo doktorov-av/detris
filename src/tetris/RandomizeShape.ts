@@ -1,8 +1,13 @@
 import {Cells, type CellType} from "../cells/CellType.ts";
 import {Shapes, type ShapeType} from "../tuning/Shapes.ts";
 import {GridShape} from "../shapes/GridShape.ts";
+import {isDebug} from "../application/Application.ts";
 
 export const RandomizeShape = (): GridShape => {
+    if (isDebug()) {
+        return new GridShape("FlatShape", { type: Cells.red })
+    }
+
     const cells = Object.values(Cells).filter((value) => (value != Cells.white && value != Cells.projected));
     let randomIndex = Math.floor(Math.random() * cells.length)
     const randCell = cells[randomIndex]

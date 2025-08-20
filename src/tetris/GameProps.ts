@@ -1,5 +1,6 @@
 import {type GameMode} from "./GameMode.ts";
 import {GridShape} from "../shapes/GridShape.ts";
+import type {GridCell} from "../shapes/GridCell.ts";
 
 
 export interface Position {
@@ -21,12 +22,11 @@ export interface GameState {
     nRows: number;
     mode: GameMode;
     activeShape?: GridShape;
-    staticShapes: GridShape[];
+    cells: GridCell[];
     isGameOver: boolean;
 }
 
 export interface GameProps {
-    staticShapes?: GridShape[];
     moveDelayMs?: number;
     isRunning?: boolean;
     mode?: GameMode;

@@ -11,5 +11,12 @@ export const Moves = {
     },
     get rightMove(): Offset {
         return {x: -this.leftMove.x, y: 0}
+    },
+    multiply: (offset: Offset, multiplier: number): Offset => {
+        return {
+            x: offset.x  * multiplier,
+            y: offset.y  * multiplier,
+        }
     }
+
 } as const;

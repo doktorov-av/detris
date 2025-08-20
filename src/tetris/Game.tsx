@@ -11,6 +11,8 @@ import {GridShapeComponent} from "../shapes/GridShapeComponent.tsx";
 import {Project, ShapeProjection, type ShapeProjectionProps} from "../projection/ShapeProjection.tsx";
 import {Moves} from "./Moves.ts";
 import {GameOverComponent} from "../components/GameOverComponent.tsx";
+import {GridCell} from "../shapes/GridCell.ts";
+import {GridCellComponent} from "../shapes/GridCellComponent.tsx";
 
 const gameDefaults = {
     nRows: 20,
@@ -28,7 +30,7 @@ export class Game extends React.Component<GameProps, GameState> {
             level: 1,
             isRunning: true,
             mode: Modes.Standard,
-            staticShapes: [],
+            cells: [],
             isGameOver: false,
             ...props,
             ...gameDefaults,
@@ -36,7 +38,7 @@ export class Game extends React.Component<GameProps, GameState> {
 
         this.state = {
             ...this.state,
-            activeShape: new GridShape("TShape").move(this.getStartPosition()),
+            activeShape: RandomizeShape().move(this.getStartPosition()),
         }
 
         this.intervalId = undefined
@@ -62,8 +64,8 @@ export class Game extends React.Component<GameProps, GameState> {
                 ...prev,
                 score: 0,
                 level: 1,
-                activeShape: undefined,
-                staticShapes: [],
+                activeShape: RandomizeShape().move(this.getStartPosition()),
+                cells: [],
                 isGameOver: false,
             }
         })
@@ -140,31 +142,61 @@ export class Game extends React.Component<GameProps, GameState> {
         const frozenShape = this.state.activeShape!;
         this.setState(prev => ({
             ...prev,
-            staticShapes: [...prev.staticShapes, frozenShape],
+            cells: [...prev.cells, ...prev.activeShape!.getCells()],
             activeShape: undefined,
         }), () => {
             this.onFreeze(frozenShape);
         });
     }
 
-    // collapse removes all the cells that exist within given row
-    private collapseRows(iRows: number[]) {
+    private collapseCompleteRows() {
+        const rowCounts = new Map<number, number>();
+
+        // Count cells in each row
+        this.state.cells.forEach(cell => {
+            const row = cell.getGridPosition().row;
+            rowCounts.set(row, (rowCounts.get(row) || 0) + 1);
+        });
+
+        // Find complete rows
+        const completeRows: number[] = [];
+        rowCounts.forEach((count, row) => {
+            if (count >= this.state.nColumns) {
+                completeRows.push(row);
+            }
+        });
+
+        if (completeRows.length > 0) {
+            this.collapseRows(completeRows);
+        }
+    };
+
+    private collapseRows(rowsToCollapse: number[]) {
         this.setState(prev => {
+            // Filter out cells in completed rows
+            const remainingCells = prev.cells.filter(
+                cell => !rowsToCollapse.includes(cell.getGridPosition().row)
+            );
+
+            // Move cells above the collapsed rows down
+            const updatedCells = remainingCells.map(cell => {
+                const cellRow = cell.getGridPosition().row;
+                const rowsAboveCollapsed = rowsToCollapse.filter(row => row > cellRow).length;
+
+                if (rowsAboveCollapsed > 0) {
+                    return cell.copy().move(Moves.multiply(Moves.downMove, rowsAboveCollapsed))
+                }
+
+                return cell;
+            });
+
             return {
                 ...prev,
-                staticShapes: prev.staticShapes.map((shape) => {
-                    return shape.collapsed(iRows);
-                }),
+                cells: updatedCells,
+                score: prev.score + rowsToCollapse.length * 100,
             }
         })
-    }
-
-    private collapse() {
-        const rows = this.getCollapsableRows()
-        if (rows.length > 0) {
-            this.collapseRows(rows);
-        }
-    }
+    };
 
     // ~~~~~~~~~~~~~ validators ~~~~~~~~~~~~~ //
 
@@ -182,12 +214,10 @@ export class Game extends React.Component<GameProps, GameState> {
             if (coords.row < 0)
                 continue;
 
-            // 2. Check collisions with static shapes
-            for (const staticShape of this.state.staticShapes) {
-                for (const staticCoords of staticShape.getGridCoords()) {
-                    if (staticCoords.row == coords.row && staticCoords.col == coords.col) {
-                        return false;
-                    }
+            // 2. Check collisions with cells
+            for (const cell of this.state.cells) {
+                if (cell.overlaps(coords)) {
+                    return false;
                 }
             }
         }
@@ -230,7 +260,7 @@ export class Game extends React.Component<GameProps, GameState> {
     // ~~~~~~~~~~~~~ events ~~~~~~~~~~~~~ //
 
     handleKeyDown = (ev: KeyboardEvent) => {
-        if (ev.repeat || !this.isRunning() || !this.state.activeShape) {
+        if (ev.repeat || !this.isRunning() || this.state.activeShape === undefined) {
             return
         }
 
@@ -264,7 +294,7 @@ export class Game extends React.Component<GameProps, GameState> {
         }
 
         if (this.state.activeShape === undefined) {
-            this.spawnActive()
+            return;
         }
 
         if (!this.isValidMove(Moves.downMove)) {
@@ -286,7 +316,7 @@ export class Game extends React.Component<GameProps, GameState> {
 
     protected onFreeze(frozenShape: GridShape) {
         this.checkGameOver(frozenShape);
-        this.collapse()
+        this.collapseCompleteRows()
     }
 
     protected onSpawn() {
@@ -299,8 +329,8 @@ export class Game extends React.Component<GameProps, GameState> {
 
     // ~~~~~~~~~~~~~ getters ~~~~~~~~~~~~~ //
 
-    public getStaticShapes(): GridShape[] {
-        return Array.from([...this.state.staticShapes, ...this.props.staticShapes ?? []])
+    public getCells(): GridCell[] {
+        return this.state.cells
     }
 
     public getNumRows(): number {
@@ -327,15 +357,13 @@ export class Game extends React.Component<GameProps, GameState> {
         const rows = new Array<number>()
         const rowCounts = new Map<number, number>()
 
-        this.state.staticShapes.forEach((shape: GridShape) => {
-            const coords = shape.getGridCoords()
-            coords.map(({row}) => {
-                if (rowCounts.has(row)) {
-                    rowCounts.set(row, rowCounts.get(row)! + 1)
-                } else {
-                    rowCounts.set(row, 1)
-                }
-            })
+        this.state.cells.forEach((cell: GridCell) => {
+            const {row} = cell.getGridPosition()
+            if (rowCounts.has(row)) {
+                rowCounts.set(row, rowCounts.get(row)! + 1)
+            } else {
+                rowCounts.set(row, 1)
+            }
         })
         rowCounts.forEach((rowCount, iRow) => {
             if (rowCount >= this.state.nColumns) {
@@ -344,6 +372,12 @@ export class Game extends React.Component<GameProps, GameState> {
         })
 
         return rows
+    }
+
+    public getCellsAboveRow(iRow: number): GridCell[] {
+        return this.state.cells.filter((cell: GridCell) => {
+            return cell.isAbove(iRow)
+        })
     }
 
     public isRunning(): boolean {
@@ -359,10 +393,10 @@ export class Game extends React.Component<GameProps, GameState> {
             {this.isGameOver() &&
                 <GameOverComponent></GameOverComponent>
             }
-            <GameGrid nrows={this.getNumRows()} ncols={this.state.nColumns}>
+            <GameGrid nRows={this.getNumRows()} nColumns={this.state.nColumns}>
                 {
-                    this.getStaticShapes().map((shape, index) => (
-                        <GridShapeComponent shape={shape} key={`static-shape-${index}`}/>
+                    this.getCells().map((cell, index) => (
+                        <GridCellComponent cell={cell} key={`static-cell-${index}`}/>
                     ))
                 }
                 {this.state.activeShape &&

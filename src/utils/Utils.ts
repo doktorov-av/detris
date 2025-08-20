@@ -1,4 +1,5 @@
-import type {Offset, Position} from "../tetris/GameProps.ts";
+import type {Coords, Offset, Position} from "../tetris/GameProps.ts";
+import {CellTuning} from "../tuning/Cells.ts";
 
 export const Utils = {
     normalizeAngle: (angle: number): number => {
@@ -24,6 +25,12 @@ export const Utils = {
         return {
             x: pos.x + offset.x,
             y: pos.y + offset.y,
+        }
+    },
+    toGridCoords(pos: Position): Coords {
+        return {
+            col: Math.floor(pos.x / CellTuning.shape.width),
+            row: Math.floor(pos.y / CellTuning.shape.height)
         }
     }
 }

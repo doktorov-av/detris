@@ -4,6 +4,7 @@ import {CellTuning} from "../tuning/Cells.ts";
 import type {CellProps} from "../cells/Cell.tsx";
 import {Cells} from "../cells/CellType.ts";
 import {Utils} from '../utils/Utils';
+import {GridCell} from "./GridCell.ts";
 
 export class GridShape {
     private cellPositions: Position[]; // cells positions in grid space
@@ -22,7 +23,9 @@ export class GridShape {
     }
 
     static copy(shape: GridShape): GridShape {
-        return new GridShape(shape.type, shape.cellProps, shape.offset, shape.variantIndex)
+        const newShape = new GridShape(shape.type, shape.cellProps, shape.offset, shape.variantIndex)
+        newShape.cellPositions = shape.cellPositions
+        return newShape
     }
 
     public next(): this {
@@ -40,6 +43,17 @@ export class GridShape {
         return GridShape.copy(this).move(offset)
     }
 
+    public moveCells(cells: number[], offset: Offset): this {
+        for (const i of cells) {
+            this.cellPositions[i] = Utils.offset(this.cellPositions[i], offset)
+        }
+        return this;
+    }
+
+    public movedCells(cells: number[], offset: Offset): GridShape {
+        return GridShape.copy(this).moveCells(cells, offset)
+    }
+
     public collapse(iRows: number[]): this {
         this.cellPositions = this.cellPositions.filter((v) => {
             const gridCoords = this.toGridCoords(v)
@@ -52,11 +66,26 @@ export class GridShape {
         return GridShape.copy(this).collapse(iRows)
     }
 
+    public isUponRows(iRows: number[]): boolean {
+        const gridCoords = this.getGridCoords()
+        for (const gridCoord of gridCoords) {
+            for (const row of iRows) {
+                if (gridCoord.row > row) {
+                    return false
+                }
+            }
+        }
+        return true
+    }
+
+    public isEmpty(): boolean {
+        return this.cellPositions.length === 0
+    }
+
     public getGridCoords(): Coords[] {
-        return this.getRenderedPositions().map((pos): Coords => ({
-            col: Math.floor(pos.x / CellTuning.shape.width),
-            row: Math.floor(pos.y / CellTuning.shape.height)
-        }))
+        return this.getRenderedPositions().map((pos): Coords => {
+            return Utils.toGridCoords(pos)
+        })
     }
 
     // returns grid space positions
@@ -84,6 +113,24 @@ export class GridShape {
 
     public getVariant(): number {
         return this.variantIndex;
+    }
+
+    public getCells(): GridCell[] {
+        return this.getRenderedPositions().map((pos): GridCell => {
+            return new GridCell(pos, this.cellProps)
+        })
+    }
+
+    public getCellsUponRows(iRows: number[]): number[] {
+        const result: number[] = []
+        this.getGridCoords().forEach((coords, i) => {
+            iRows.forEach((row) => {
+                if (coords.row < row) {
+                    result.push(i)
+                }
+            })
+        })
+        return result
     }
 
     public setCellProps(cellProps: CellProps): void {

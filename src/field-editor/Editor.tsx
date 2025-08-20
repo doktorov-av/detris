@@ -1,15 +1,17 @@
 import React from 'react';
-import {IoIosAdd} from "react-icons/io";
-import {RxReset} from "react-icons/rx";
+import {IoIosAdd as AppendButton} from "react-icons/io";
 import './Editor.css'
 import { SegmentedControl } from '@mantine/core';
 import {type GameProps} from "../tetris/GameProps.ts";
 import {type GameModeName, Modes} from "../tetris/GameMode.ts";
 import { IoPlayOutline as PlayButton } from "react-icons/io5";
+import { MdOutlineRestartAlt as RestartButton } from "react-icons/md";
+import type {Game} from "../tetris/Game.tsx";
 
 interface GameEditorProps {
     propsSetter: React.Dispatch<React.SetStateAction<GameProps>>;
     iniProps: GameProps
+    gameRef: React.RefObject<Game | null>
 }
 
 export class GameEditor extends React.Component<GameEditorProps> {
@@ -35,28 +37,18 @@ export class GameEditor extends React.Component<GameEditorProps> {
                 />
                 <div style={{display: "flex", gap: "20px", margin: "auto"}}>
                     <div className="circle-container">
-                        <IoIosAdd
+                        <AppendButton
                             className="add-button manipulator"
                             onClick={() => {
-                                this.props.propsSetter(prev => {
-                                    return {
-                                        ...prev,
-                                        nrows: prev.nrows ?? (prev.nrows as unknown as number) + 1,
-                                    }
-                                })
+                                this.props.gameRef.current?.appendRow()
                             }}
                         />
                     </div>
                     <div className="circle-container">
-                        <RxReset
+                        <RestartButton
                             className="reset-button manipulator"
                             onClick={() => {
-                                this.props.propsSetter(prev => {
-                                    return {
-                                        ...prev,
-                                        numRows: this.props.iniProps.nrows,
-                                    }
-                                });
+                                this.props.gameRef.current?.restart();
                             }}
                         />
                     </div>

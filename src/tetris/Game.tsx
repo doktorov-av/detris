@@ -8,19 +8,18 @@ import {CellTuning} from "../tuning/Cells.ts";
 import {RandomizeShape} from "./RandomizeShape.ts";
 import {GridShape} from "../shapes/GridShape.ts";
 import {GridShapeComponent} from "../shapes/GridShapeComponent.tsx";
-
-const downMove: Offset = {x: 0, y: CellTuning.shape.height}
-const rightMove: Offset = {x: CellTuning.shape.width, y: 0}
-const leftMove: Offset = {x: -rightMove.x, y: 0}
-const startPosition: Position = {x: 8 * CellTuning.shape.width, y: -CellTuning.shape.height * 2}
+import {Project, ShapeProjection, type ShapeProjectionProps} from "../projection/ShapeProjection.tsx";
+import {Moves} from "./Moves.ts";
+import {GameOverComponent} from "../components/GameOverComponent.tsx";
 
 const gameDefaults = {
     nRows: 20,
+    nColumns: 13,
     intervalMs: 1000,
 }
 
 export class Game extends React.Component<GameProps, GameState> {
-    private intervalId: number
+    private intervalId?: number
 
     constructor(props: GameProps) {
         super(props);
@@ -28,68 +27,88 @@ export class Game extends React.Component<GameProps, GameState> {
             score: 0,
             level: 1,
             isRunning: true,
-            ncols: 20,
             mode: Modes.Standard,
-            activeShape: new GridShape("TShape").move(startPosition),
             staticShapes: [],
-            ...props
+            isGameOver: false,
+            ...props,
+            ...gameDefaults,
         };
-        this.intervalId = 0
+
+        this.state = {
+            ...this.state,
+            activeShape: new GridShape("TShape").move(this.getStartPosition()),
+        }
+
+        this.intervalId = undefined
         this.handleKeyDown = this.handleKeyDown.bind(this);
     }
 
-    private isValidMove(offset: Offset): boolean {
-        const activeShape = GridShape.copy(this.state.activeShape!)
-        activeShape.move(offset)
-        return this.isValidShape(activeShape)
+    // ~~~~~~~~~~~~~ interface ~~~~~~~~~~~~~ //
+
+    public start() {
+        this.intervalId = setInterval(() => {
+                this.update()
+            }, this.props.moveDelayMs ?? gameDefaults.intervalMs);
     }
 
-    moveIfValid(offset: Offset) {
+    public stop() {
+        clearInterval(this.intervalId);
+    }
+
+    public restart() {
+        this.stop()
+        this.setState(prev => {
+            return {
+                ...prev,
+                score: 0,
+                level: 1,
+                activeShape: undefined,
+                staticShapes: [],
+                isGameOver: false,
+            }
+        })
+        this.start()
+    }
+
+    public appendRow() {
+        this.setState(prev => {
+            return {
+                ...prev,
+                nRows: prev.nRows + 1,
+            }
+        })
+    }
+
+    // ~~~~~~~~~~~~~ game logic ~~~~~~~~~~~~~ //
+
+    private moveIfValid(offset: Offset) {
         if (this.isValidMove(offset)) {
             this.moveActive(offset)
         }
     }
 
-    moveActive(offset: Offset) {
+    private moveActive(offset: Offset) {
         this.setState((prev) => {
             return {
                 ...prev,
-                activeShape: GridShape.copy(prev.activeShape!).move(offset),
+                activeShape: prev.activeShape!.moved(offset),
             }
         })
-    }
-
-    spawnActive() {
-        this.setState(prev => ({
-            ...prev,
-            activeShape: RandomizeShape().move(startPosition),
-        }))
     }
 
     // moves active shape to static shapes
-    freezeActive() {
-        this.setState(prevState => {
-            return {
-                ...prevState,
-                staticShapes: [...prevState.staticShapes, prevState.activeShape!],
-                activeShape: undefined
-            }
-        })
+    private freezeAndSpawn() {
+        this.freeze();
+        this.spawnActive();
     }
 
-    nextIfValid() {
+    private nextIfValid() {
         if (this.isValidNext()) {
             this.nextActive()
         }
     }
 
-    isValidNext(): boolean {
-        const activeShape = GridShape.copy(this.state.activeShape!)
-        activeShape.next()
-        return this.isValidShape(activeShape)
-    }
-
-    nextActive() {
+    private nextActive() {
         this.setState((prev) => {
             return {
                 ...prev,
@@ -98,10 +117,42 @@ export class Game extends React.Component<GameProps, GameState> {
         })
     }
 
+    private projectActive() {
+        const projectedShape = Project(this.getActiveProjectionProps());
+        this.setState(prev => ({
+            ...prev,
+            activeShape: projectedShape,
+        }), () => {
+            this.freezeAndSpawn();
+        });
+    }
+
+    private spawnActive() {
+        this.setState(prev => ({
+            ...prev,
+            activeShape: RandomizeShape().moved(this.getStartPosition()),
+        }), () => {
+            this.onSpawn()
+        })
+    }
+
+    private freeze() {
+        const frozenShape = this.state.activeShape!;
+        this.setState(prev => ({
+            ...prev,
+            staticShapes: [...prev.staticShapes, frozenShape],
+            activeShape: undefined,
+        }), () => {
+            this.onFreeze(frozenShape);
+        });
+    }
+
+    // ~~~~~~~~~~~~~ validators ~~~~~~~~~~~~~ //
+
     private isValidShape(shape: GridShape): boolean {
         for (const coords of shape.getGridCoords()) {
             // 1. Check boundaries
-            const exceedsColumns = coords.col < 0 || coords.col >= this.state.ncols
+            const exceedsColumns = coords.col < 0 || coords.col >= this.state.nColumns
             const exceedsRows = coords.row >= this.getNumRows()
 
             if (exceedsColumns || exceedsRows) {
@@ -124,78 +175,159 @@ export class Game extends React.Component<GameProps, GameState> {
         return true;
     }
 
-    handleKeyDown(ev: KeyboardEvent) {
-        if (ev.repeat || !this.props.isRunning || !this.state.activeShape) {
+    private isValidNext(): boolean {
+        const activeShape = GridShape.copy(this.state.activeShape!)
+        activeShape.next()
+        return this.isValidShape(activeShape)
+    }
+
+    private isValidMove(offset: Offset): boolean {
+        const activeShape = GridShape.copy(this.state.activeShape!)
+        activeShape.move(offset)
+        return this.isValidShape(activeShape)
+    }
+
+    private checkGameOver(frozenShape: GridShape) {
+        const isOver = this.exceedsGrid(frozenShape)
+        if (isOver) {
+            this.setState({ isGameOver: true }, () => {
+                this.onGameOver();
+            });
+        }
+    }
+
+    // ~~~~~~~~~~~~~ events ~~~~~~~~~~~~~ //
+
+    handleKeyDown = (ev: KeyboardEvent) => {
+        if (ev.repeat || !this.isRunning() || !this.state.activeShape) {
             return
+        }
+
+        if (ev.defaultPrevented) {
+            return; // Do nothing if the event was already processed
         }
 
         switch (ev.key) {
             case 'ArrowDown':
-                this.moveIfValid(downMove)
+                this.moveIfValid(Moves.downMove)
                 break;
             case 'ArrowLeft':
-                this.moveIfValid(leftMove)
+                this.moveIfValid(Moves.leftMove)
                 break;
             case 'ArrowRight':
-                this.moveIfValid(rightMove)
+                this.moveIfValid(Moves.rightMove)
                 break;
             case 'R':
             case 'r':
                 this.nextIfValid()
                 break;
+            case ' ':
+                this.projectActive();
+                break;
         }
     }
 
+    protected update() {
+        if (!this.isRunning()) {
+            return
+        }
 
-    componentDidMount() {
-        this.intervalId = setInterval(() => {
-            if (!this.isRunning()) {
-                return
-            }
+        if (this.state.activeShape === undefined) {
+            this.spawnActive()
+        }
 
-            if (this.state.activeShape === undefined) {
-                return;
-            }
-
-            if (!this.isValidMove(downMove)) {
-                this.freezeActive()
-                this.spawnActive()
-            } else {
-                this.moveActive(downMove)
-            }
-        }, this.props.moveDelayMs ?? gameDefaults.intervalMs)
-
-        document.addEventListener('keydown', (ev) => this.handleKeyDown(ev));
+        if (!this.isValidMove(Moves.downMove)) {
+            this.freezeAndSpawn()
+        } else {
+            this.moveActive(Moves.downMove)
+        }
     }
 
-    componentWillUnmount() {
+    public componentDidMount() {
+        document.addEventListener('keydown', this.handleKeyDown)
+        this.start()
+    }
+
+    public componentWillUnmount() {
+        document.removeEventListener('keydown', this.handleKeyDown);
+        this.stop()
+    }
+
+    protected onFreeze(frozenShape: GridShape) {
+        this.checkGameOver(frozenShape);
+    }
+
+    protected onSpawn() {
+
+    }
+
+    protected onGameOver() {
         clearInterval(this.intervalId)
-        document.removeEventListener('keydown', (ev) => this.handleKeyDown(ev));
     }
 
-    getStaticShapes(): GridShape[] {
+    // ~~~~~~~~~~~~~ getters ~~~~~~~~~~~~~ //
+
+    public getStaticShapes(): GridShape[] {
         return Array.from([...this.state.staticShapes, ...this.props.staticShapes ?? []])
     }
 
-    getNumRows() : number {
-        return this.props.nrows ?? gameDefaults.nRows
+    public getNumRows(): number {
+        return this.state.nRows
     }
 
-    isRunning(): boolean {
-        return this.props.isRunning ?? false
+    public getProjectionProps(shape: GridShape): ShapeProjectionProps {
+        return {
+            projectedShape: shape,
+            shapeValidator: (shape: GridShape) => this.isValidShape(shape),
+        } as ShapeProjectionProps
     }
 
-    render() {
-        return <GameGrid nrows={this.getNumRows()} ncols={this.state.ncols}>
-            {
-                this.getStaticShapes().map((shape, index) => (
-                    <GridShapeComponent shape={shape} key={`static-shape-${index}`}/>
-                ))
-            }
-            {
-                this.state.activeShape && <GridShapeComponent shape={this.state.activeShape} key={'active-shape'}/>
-            }
+    public getActiveProjectionProps(): ShapeProjectionProps {
+        return this.getProjectionProps(this.state.activeShape!)
+    }
 
-        </GameGrid>
+    public getStartPosition(): Position {
+        return  {x: (Math.floor(this.state.nColumns / 2) - 1) * CellTuning.shape.width, y: -CellTuning.shape.height * 2}
+    }
+
+    public isRunning(): boolean {
+        return (this.props.isRunning ?? true) && !this.isGameOver()
+    }
+
+    public isGameOver(): boolean {
+        return this.state.isGameOver
+    }
+
+    private exceedsGrid(shape: GridShape): boolean {
+        for (const coords of shape.getGridCoords()) {
+            const exceedsColumns = coords.col < 0 || coords.col > this.state.nColumns
+            const exceedsRows = coords.row < 0 || coords.row > this.getNumRows()
+
+            if (exceedsColumns || exceedsRows) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public render() {
+        return <div>
+            {this.isGameOver() &&
+                <GameOverComponent></GameOverComponent>
+            }
+            <GameGrid nrows={this.getNumRows()} ncols={this.state.nColumns}>
+                {
+                    this.getStaticShapes().map((shape, index) => (
+                        <GridShapeComponent shape={shape} key={`static-shape-${index}`}/>
+                    ))
+                }
+                {this.state.activeShape &&
+                    <GridShapeComponent shape={this.state.activeShape} key={'active-shape'}/>
+                }
+                {this.state.activeShape &&
+                    <ShapeProjection {...this.getActiveProjectionProps()}/>
+                }
+            </GameGrid>
+        </div>
     }
 }

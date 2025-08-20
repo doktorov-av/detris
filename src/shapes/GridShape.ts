@@ -8,7 +8,7 @@ import {Utils} from '../utils/Utils';
 export class GridShape {
     private cellPositions: Position[]; // cells positions in grid space
     private variantIndex: number; // current shape variant
-    private readonly cellProps: CellProps;
+    private cellProps: CellProps;
     private readonly type: ShapeType;
     private offset: Offset;
 
@@ -34,6 +34,10 @@ export class GridShape {
     public move(offset: Offset): this {
         this.offset = Utils.offset(this.offset, offset)
         return this;
+    }
+
+    public moved(offset: Offset): GridShape {
+        return GridShape.copy(this).move(offset)
     }
 
     public getGridCoords(): Coords[] {
@@ -62,15 +66,15 @@ export class GridShape {
         return this.variantIndex;
     }
 
+    public setCellProps(cellProps: CellProps): void {
+        this.cellProps = cellProps
+    }
+
     private maxVariants(): number {
         return Shapes[this.type].mShape.length
     }
 
     private nextVariant(): number {
-        const nextIndex = this.variantIndex + 1
-        if (nextIndex < this.maxVariants()) {
-            return nextIndex
-        }
-        return 0
+        return this.variantIndex + 1 < this.maxVariants() ? this.variantIndex + 1 : 0
     }
 }

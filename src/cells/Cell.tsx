@@ -1,4 +1,4 @@
-import styled, { css } from 'styled-components';
+import styled, {css} from 'styled-components';
 import {Cells, type CellType} from "./CellType.ts";
 import {CellTuning} from "../tuning/Cells.ts";
 
@@ -15,7 +15,7 @@ export const Cell = styled.div<CellProps>`
     width: ${CellTuning.shape.widthPx};
     height: ${CellTuning.shape.heightPx};
 
-    ${({ type = Defaults.type }) => {
+    ${({type = Defaults.type}) => {
         switch (type) {
             case Cells.white:
                 return css`
@@ -36,6 +36,11 @@ export const Cell = styled.div<CellProps>`
                     box-shadow: 0 0 10px 2px cornflowerblue,
                     0 0 20px 1px inset blueviolet;
                 `;
+            case Cells.projected:
+                return css`
+                    background: rgba(128, 128, 128, 0.3);
+                    border: 1px solid rgba(0, 0, 255, 0.3);
+                `
         }
     }}
 `;

@@ -3,7 +3,7 @@ import {Shapes, type ShapeType} from "../tuning/Shapes.ts";
 import {GridShape} from "../shapes/GridShape.ts";
 
 export const RandomizeShape = (): GridShape => {
-    const cells = Object.values(Cells).filter((value) => value != Cells.white)
+    const cells = Object.values(Cells).filter((value) => (value != Cells.white && value != Cells.projected));
     let randomIndex = Math.floor(Math.random() * cells.length)
     const randCell = cells[randomIndex]
 

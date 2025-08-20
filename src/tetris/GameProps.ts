@@ -1,5 +1,4 @@
 import {type GameMode} from "./GameMode.ts";
-import type {PositionedShapeProps} from "../shapes/PositionedShape.tsx";
 import {GridShape} from "../shapes/GridShape.ts";
 
 
@@ -18,10 +17,12 @@ export interface Coords {
 export interface GameState {
     score: number;
     level: number;
-    ncols: number;
+    nColumns: number;
+    nRows: number;
     mode: GameMode;
     activeShape?: GridShape;
     staticShapes: GridShape[];
+    isGameOver: boolean;
 }
 
 export interface GameProps {
@@ -29,5 +30,5 @@ export interface GameProps {
     moveDelayMs?: number;
     isRunning?: boolean;
     mode?: GameMode;
-    nrows?: number;
+    nRows?: number;
 }

@@ -150,19 +150,20 @@ export class Game extends React.Component<GameProps, GameState> {
     // collapse removes all the cells that exist within given row
     private collapseRows(iRows: number[]) {
         this.setState(prev => {
-            const newStatics = prev.staticShapes.map((shape) => {
-                return shape.collapsed(iRows);
-            })
-
             return {
                 ...prev,
-                staticShapes: [...newStatics],
+                staticShapes: prev.staticShapes.map((shape) => {
+                    return shape.collapsed(iRows);
+                }),
             }
         })
     }
 
     private collapse() {
-        this.collapseRows(this.getCollapsableRows());
+        const rows = this.getCollapsableRows()
+        if (rows.length > 0) {
+            this.collapseRows(rows);
+        }
     }
 
     // ~~~~~~~~~~~~~ validators ~~~~~~~~~~~~~ //

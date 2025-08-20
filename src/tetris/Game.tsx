@@ -47,8 +47,8 @@ export class Game extends React.Component<GameProps, GameState> {
 
     public start() {
         this.intervalId = setInterval(() => {
-                this.update()
-            }, this.props.moveDelayMs ?? gameDefaults.intervalMs);
+            this.update()
+        }, this.props.moveDelayMs ?? gameDefaults.intervalMs);
     }
 
     public stop() {
@@ -147,6 +147,24 @@ export class Game extends React.Component<GameProps, GameState> {
         });
     }
 
+    // collapse removes all the cells that exist within given row
+    private collapseRows(iRows: number[]) {
+        this.setState(prev => {
+            const newStatics = prev.staticShapes.map((shape) => {
+                return shape.collapsed(iRows);
+            })
+
+            return {
+                ...prev,
+                staticShapes: [...newStatics],
+            }
+        })
+    }
+
+    private collapse() {
+        this.collapseRows(this.getCollapsableRows());
+    }
+
     // ~~~~~~~~~~~~~ validators ~~~~~~~~~~~~~ //
 
     private isValidShape(shape: GridShape): boolean {
@@ -190,10 +208,22 @@ export class Game extends React.Component<GameProps, GameState> {
     private checkGameOver(frozenShape: GridShape) {
         const isOver = this.exceedsGrid(frozenShape)
         if (isOver) {
-            this.setState({ isGameOver: true }, () => {
+            this.setState({isGameOver: true}, () => {
                 this.onGameOver();
             });
         }
+    }
+
+    private exceedsGrid(shape: GridShape): boolean {
+        for (const coords of shape.getGridCoords()) {
+            const exceedsColumns = coords.col < 0 || coords.col > this.state.nColumns
+            const exceedsRows = coords.row < 0 || coords.row > this.getNumRows()
+
+            if (exceedsColumns || exceedsRows) {
+                return true;
+            }
+        }
+        return false;
     }
 
     // ~~~~~~~~~~~~~ events ~~~~~~~~~~~~~ //
@@ -255,10 +285,11 @@ export class Game extends React.Component<GameProps, GameState> {
 
     protected onFreeze(frozenShape: GridShape) {
         this.checkGameOver(frozenShape);
+        this.collapse()
     }
 
     protected onSpawn() {
-
+        return
     }
 
     protected onGameOver() {
@@ -287,7 +318,31 @@ export class Game extends React.Component<GameProps, GameState> {
     }
 
     public getStartPosition(): Position {
-        return  {x: (Math.floor(this.state.nColumns / 2) - 1) * CellTuning.shape.width, y: -CellTuning.shape.height * 2}
+        return {x: (Math.floor(this.state.nColumns / 2) - 1) * CellTuning.shape.width, y: -CellTuning.shape.height * 2}
+    }
+
+    // getCollapsableRows returns rows indexes that can be collapsed
+    public getCollapsableRows(): number[] {
+        const rows = new Array<number>()
+        const rowCounts = new Map<number, number>()
+
+        this.state.staticShapes.forEach((shape: GridShape) => {
+            const coords = shape.getGridCoords()
+            coords.map(({row}) => {
+                if (rowCounts.has(row)) {
+                    rowCounts.set(row, rowCounts.get(row)! + 1)
+                } else {
+                    rowCounts.set(row, 1)
+                }
+            })
+        })
+        rowCounts.forEach((rowCount, iRow) => {
+            if (rowCount >= this.state.nColumns) {
+                rows.push(iRow)
+            }
+        })
+
+        return rows
     }
 
     public isRunning(): boolean {
@@ -296,18 +351,6 @@ export class Game extends React.Component<GameProps, GameState> {
 
     public isGameOver(): boolean {
         return this.state.isGameOver
-    }
-
-    private exceedsGrid(shape: GridShape): boolean {
-        for (const coords of shape.getGridCoords()) {
-            const exceedsColumns = coords.col < 0 || coords.col > this.state.nColumns
-            const exceedsRows = coords.row < 0 || coords.row > this.getNumRows()
-
-            if (exceedsColumns || exceedsRows) {
-                return true;
-            }
-        }
-        return false;
     }
 
     public render() {

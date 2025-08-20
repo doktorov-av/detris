@@ -40,6 +40,18 @@ export class GridShape {
         return GridShape.copy(this).move(offset)
     }
 
+    public collapse(iRows: number[]): this {
+        this.cellPositions = this.cellPositions.filter((v) => {
+            const gridCoords = this.toGridCoords(v)
+            return !iRows.includes(gridCoords.row)
+        })
+        return this;
+    }
+
+    public collapsed(iRows: number[]): GridShape {
+        return GridShape.copy(this).collapse(iRows)
+    }
+
     public getGridCoords(): Coords[] {
         return this.getRenderedPositions().map((pos): Coords => ({
             col: Math.floor(pos.x / CellTuning.shape.width),
@@ -52,6 +64,14 @@ export class GridShape {
         return this.cellPositions.map((pos) => {
             return Utils.offset(pos, this.offset)
         })
+    }
+
+    private toGridCoords(pos: Position): Coords {
+        pos = Utils.offset(pos, this.offset)
+        return {
+            col: Math.floor(pos.x / CellTuning.shape.width),
+            row: Math.floor(pos.y / CellTuning.shape.height)
+        }
     }
 
     public getType(): ShapeType {

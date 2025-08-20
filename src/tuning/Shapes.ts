@@ -97,7 +97,7 @@ export type ShapeType = keyof typeof Shapes;
 
 export function GetShapeCellPositions(type: ShapeType, variant: number): Position[] {
     const shapeVariant = Shapes[type].mShape[variant]
-    let result = new Array<Position>
+    const result = new Array<Position>
     for (let iRow = 0; iRow < shapeVariant.length; iRow++) {
         for (let iCol = 0; iCol < shapeVariant[iRow].length; iCol++) {
             if (shapeVariant[iRow][iCol] === 0)

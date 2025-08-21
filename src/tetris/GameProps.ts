@@ -24,6 +24,7 @@ export interface GameState {
     activeShape?: GridShape;
     cells: GridCell[];
     isGameOver: boolean;
+    clearingRows: number[];
 }
 
 export interface GameProps {

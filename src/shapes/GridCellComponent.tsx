@@ -1,13 +1,23 @@
 import React from "react";
-import {Cell} from "../cells/Cell.tsx";
-import type {GridCell} from "./GridCell.ts";
+import { Cell } from "../cells/Cell.tsx";
+import type { GridCell } from "./GridCell.ts";
 
 export interface GridCellComponentProps {
     cell: GridCell;
+    className?: string;
 }
 
-export const GridCellComponent: React.FC<GridCellComponentProps> = ({cell}: GridCellComponentProps) => {
-    return <div className='absolute' style={{top: cell.getY(), left: cell.getX()}}>
-        <Cell {...cell.getProps()}> </Cell>
-    </div>
+export const GridCellComponent: React.FC<GridCellComponentProps> = ({ cell, className = "" }: GridCellComponentProps) => {
+    return (
+        <div
+            className={`absolute ${className}`}
+            style={{
+                top: cell.getY(),
+                left: cell.getX(),
+                transition: "transform 0.2s, opacity 0.2s"
+            }}
+        >
+            <Cell {...cell.getProps()}> </Cell>
+        </div>
+    );
 }

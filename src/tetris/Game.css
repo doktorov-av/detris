@@ -1,0 +1,75 @@
+/* Game.css */
+.clearing {
+    animation: clearRow 0.5s ease-out forwards;
+}
+
+@keyframes clearRow {
+    0% {
+        opacity: 1;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 0.5;
+        transform: scale(1.1);
+    }
+    100% {
+        opacity: 0;
+        transform: scale(0);
+    }
+}
+
+/* Pulse effect for completed rows */
+@keyframes pulse {
+    0% { background-color: rgba(255, 255, 255, 0.1); }
+    50% { background-color: rgba(255, 255, 255, 0.5); }
+    100% { background-color: rgba(255, 255, 255, 0.1); }
+}
+
+.row-complete {
+    animation: pulse 0.5s ease-in-out 2;
+}
+
+/* Additional visual effects */
+.game-container {
+    position: relative;
+    font-family: 'Arial', sans-serif;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    color: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+}
+
+.game-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.game-stats {
+    display: flex;
+    gap: 20px;
+}
+
+.control-button {
+    background: #4cc9f0;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.control-button:hover {
+    background: #4361ee;
+}
+
+.game-instructions {
+    margin-top: 20px;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 15px;
+    border-radius: 5px;
+}

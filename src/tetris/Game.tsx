@@ -13,6 +13,7 @@ import {Moves} from "./Moves.ts";
 import {GameOverComponent} from "../components/GameOverComponent.tsx";
 import {GridCell} from "../shapes/GridCell.ts";
 import {GridCellComponent} from "../shapes/GridCellComponent.tsx";
+import './Game.css'
 
 const gameDefaults = {
     nRows: 20,
@@ -22,6 +23,7 @@ const gameDefaults = {
 
 export class Game extends React.Component<GameProps, GameState> {
     private intervalId?: number
+    private animationTimeout?: number
 
     constructor(props: GameProps) {
         super(props);
@@ -32,6 +34,7 @@ export class Game extends React.Component<GameProps, GameState> {
             mode: Modes.Standard,
             cells: [],
             isGameOver: false,
+            clearingRows: [],
             ...props,
             ...gameDefaults,
         };
@@ -42,6 +45,7 @@ export class Game extends React.Component<GameProps, GameState> {
         }
 
         this.intervalId = undefined
+        this.animationTimeout = undefined
         this.handleKeyDown = this.handleKeyDown.bind(this);
     }
 
@@ -167,7 +171,15 @@ export class Game extends React.Component<GameProps, GameState> {
         });
 
         if (completeRows.length > 0) {
-            this.collapseRows(completeRows);
+            this.setState(prev => ({
+                ...prev,
+                clearingRows: completeRows,
+            }), () => {
+                clearTimeout(this.animationTimeout);
+                this.animationTimeout = window.setTimeout(() => {
+                    this.collapseRows(completeRows);
+                }, 500);
+            })
         }
     };
 
@@ -192,6 +204,7 @@ export class Game extends React.Component<GameProps, GameState> {
 
             return {
                 ...prev,
+                clearingRows: [],
                 cells: updatedCells,
                 score: prev.score + rowsToCollapse.length * 100,
             }
@@ -311,6 +324,7 @@ export class Game extends React.Component<GameProps, GameState> {
 
     public componentWillUnmount() {
         document.removeEventListener('keydown', this.handleKeyDown);
+        window.clearTimeout(this.animationTimeout)
         this.stop()
     }
 
@@ -352,34 +366,6 @@ export class Game extends React.Component<GameProps, GameState> {
         return {x: (Math.floor(this.state.nColumns / 2) - 1) * CellTuning.shape.width, y: -CellTuning.shape.height * 2}
     }
 
-    // getCollapsableRows returns rows indexes that can be collapsed
-    public getCollapsableRows(): number[] {
-        const rows = new Array<number>()
-        const rowCounts = new Map<number, number>()
-
-        this.state.cells.forEach((cell: GridCell) => {
-            const {row} = cell.getGridPosition()
-            if (rowCounts.has(row)) {
-                rowCounts.set(row, rowCounts.get(row)! + 1)
-            } else {
-                rowCounts.set(row, 1)
-            }
-        })
-        rowCounts.forEach((rowCount, iRow) => {
-            if (rowCount >= this.state.nColumns) {
-                rows.push(iRow)
-            }
-        })
-
-        return rows
-    }
-
-    public getCellsAboveRow(iRow: number): GridCell[] {
-        return this.state.cells.filter((cell: GridCell) => {
-            return cell.isAbove(iRow)
-        })
-    }
-
     public isRunning(): boolean {
         return (this.props.isRunning ?? true) && !this.isGameOver()
     }
@@ -395,9 +381,16 @@ export class Game extends React.Component<GameProps, GameState> {
             }
             <GameGrid nRows={this.getNumRows()} nColumns={this.state.nColumns}>
                 {
-                    this.getCells().map((cell, index) => (
-                        <GridCellComponent cell={cell} key={`static-cell-${index}`}/>
-                    ))
+                    this.getCells().map((cell, index) => {
+                        const row = cell.getGridPosition().row
+                        const isClearing = this.state.clearingRows.includes(row)
+
+                        return (<GridCellComponent
+                            cell={cell}
+                            key={`static-cell-${index}`}
+                            className={isClearing ? 'clearing' : ''}
+                        />)
+                    })
                 }
                 {this.state.activeShape &&
                     <GridShapeComponent shape={this.state.activeShape} key={'active-shape'}/>

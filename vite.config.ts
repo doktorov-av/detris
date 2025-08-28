@@ -10,6 +10,7 @@ export default defineConfig({
         react(),
         svgr()
     ],
+    base: "/detris#/",
     resolve: {
         alias: {
             $public : '/public',

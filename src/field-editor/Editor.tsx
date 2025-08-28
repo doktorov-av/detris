@@ -58,12 +58,7 @@ export class GameEditor extends React.Component<GameEditorProps> {
                             color={'orange'}
                             size={80}
                             onClick={() => {
-                                this.props.propsSetter(prev => {
-                                    return {
-                                        ...prev,
-                                        isRunning: !prev.isRunning,
-                                    }
-                                })
+                                this.props.gameRef.current?.switchPause();
                             }}
                         />
                     </div>

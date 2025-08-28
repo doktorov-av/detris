@@ -23,8 +23,12 @@ export interface GameState {
     mode: GameMode;
     activeShape?: GridShape;
     cells: GridCell[];
+    isRunning: boolean;
     isGameOver: boolean;
     clearingRows: number[];
+    clearedRowsCount: number;
+    moveDelayMs: number;
+    disappearTimeoutMs: number;
 }
 
 export interface GameProps {
@@ -32,4 +36,6 @@ export interface GameProps {
     isRunning?: boolean;
     mode?: GameMode;
     nRows?: number;
+    onGameOver?: () => void;
+    onStart?: () => void;
 }

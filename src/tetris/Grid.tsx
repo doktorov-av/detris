@@ -1,10 +1,10 @@
 import React, {useContext} from "react";
 import {ModeContext} from "../contexts/Contexts.ts";
-import {ModeSchemes} from "../tuning/ModeSchemes.ts";
+import {GridContainer} from "../tuning/GridContainer.ts";
 import {Cell} from "../cells/Cell.tsx";
 import type {GameMode} from "./GameMode.ts";
-import './Grid.css'
 import styled from "styled-components";
+import {ModeSchemes} from "../tuning/ModeSchemes.ts";
 
 
 interface GridProps {
@@ -31,7 +31,7 @@ export const GameGrid: React.FC<GameGridProps> = ({nRows, nColumns, children}: G
     const mode: GameMode = useContext(ModeContext)
 
     return (
-        <div className={`flex m-auto tetris-grid-container overflow-clip ${ModeSchemes.get(mode)?.gridStyling}`}>
+        <GridContainer mode={mode} className='border-l-2 border-t-2 border-b-2 rounded-l-sm' style={{borderColor: ModeSchemes[mode].color}}>
             <Grid $nColumns={nColumns} $nRows={nColumns}>
                 {cells.map((_, index) => {
                     const row = Math.floor(index / nColumns);
@@ -42,6 +42,6 @@ export const GameGrid: React.FC<GameGridProps> = ({nRows, nColumns, children}: G
                 })}
                 {children}
             </Grid>
-        </div>
+        </GridContainer>
     );
 };

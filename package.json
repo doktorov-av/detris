@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite -m development",
+    "dev-release": "vite -m production",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview"
@@ -13,9 +14,12 @@
     "@mantine/core": "^8.2.1",
     "@mantine/hooks": "^8.2.1",
     "@tailwindcss/vite": "^4.1.11",
+    "path": "^0.12.7",
     "react": "^19.1.0",
     "react-cookies": "^0.1.1",
+    "react-device-detect": "^2.2.3",
     "react-dom": "^19.1.0",
+    "react-helmet-async": "^2.0.5",
     "react-icons": "^5.5.0",
     "styled-components": "^6.1.19",
     "tailwindcss": "^4.1.11"
@@ -35,6 +39,7 @@
     "sass": "^1.89.2",
     "typescript": "~5.8.3",
     "typescript-eslint": "^8.35.1",
-    "vite": "^7.0.4"
+    "vite": "^7.0.4",
+    "vite-plugin-svgr": "^4.5.0"
   }
 }

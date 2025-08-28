@@ -1,7 +1,8 @@
 import React from "react";
 
 export const GameOverComponent: React.FC = () => {
-    return <div className='flex place-items-center justify-center m-5 w-auto font-medium text-black bg-red-500 rounded-full animate-pulse'>
+    return <p
+        className='flex justify-center m-5 font-bold text-black bg-red-500 rounded-full sm:w-8/12 w-10/12'>
         Game over!
-    </div>
+    </p>
 }

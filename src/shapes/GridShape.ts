@@ -28,6 +28,10 @@ export class GridShape {
         return newShape
     }
 
+    static verticalDistance(lhs: GridShape, rhs: GridShape): number {
+        return Math.abs(lhs.getGridCoords()[0].row - rhs.getGridCoords()[0].row)
+    }
+
     public next(): this {
         this.variantIndex = this.nextVariant()
         this.cellPositions = GetShapeCellPositions(this.type, this.variantIndex)

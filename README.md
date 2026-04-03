@@ -4,7 +4,7 @@ This is a good old tetris game written in React & Vite & TypeScript
 
 # Why another one?
 
-I've been coding for a while (2+ years in total) in C++ & Go and had to learn Frontend development, so i wrote this project for practce
+I've been coding for a while (2+ years in total) in C++ & Go and had to learn Frontend development, so i wrote this project for practice
 
 ## About code
 
